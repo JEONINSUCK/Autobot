@@ -6,8 +6,8 @@ from urllib import parse
 import threading
 import time
 
-TARGET_URL = "https://www.coindeskkorea.com/"
-SEARCH_PATH = "news/articleList.html?sc_word="
+TARGET_URL = "https://www.coindeskkorea.com"
+SEARCH_PATH = "/news/articleList.html?sc_word="
 PAGE_PATH = "&page="
 DAY_PATH = "&sc_day="
 
@@ -23,7 +23,8 @@ class SearchMachine():
         self.page_num = 0
         self.day = day
 
-    def Run(self):
+    def run(self):
+        if self.debug: print("SearchMachine() runing....")
         self.article_num = 0
         self.thread_name_lists = []
 
@@ -43,13 +44,8 @@ class SearchMachine():
 
             for self.thread_name_list in self.thread_name_lists:
                 self.thread_name_list.join()
-
-        if self.debug:
-            print("article num: ", len(self.tit_lin_day_dict))
-            for i in range(1, len(self.tit_lin_day_dict)+1):
-                print("article: ", self.tit_lin_day_dict[i]['article'])
-                print("url: ", self.tit_lin_day_dict[i]['url'])
-                print("day: ", self.tit_lin_day_dict[i]['day'])
+        
+        if self.debug: print("SearchMachine() finished....\n")
 
     def PageNumSet(self):
         url = self.soup.find("li","pagination-end").find("a").attrs['href']
@@ -67,7 +63,7 @@ class SearchMachine():
                         self.art_day = self.first_div.find("div", "list-dated").get_text()
                         self.tit_lin_day_dict.update({self.article_num: 
                                                                         {"article" : self.first_div.find("a", "links").get_text(),
-                                                                        "url" : self.first_div.find("a", "links").attrs['href'],
+                                                                        "url" : TARGET_URL + self.first_div.find("a", "links").attrs['href'],
                                                                         "day" : self.art_day}
                                                                         })
 
@@ -78,16 +74,21 @@ class SearchMachine():
             url_set = TARGET_URL + path
         return url_set
 
-    def Art_Day_Parser(self, data):
+    def ArtDayParser(self, data):
         return data.split("|")[1]
 
-    def UrlParser(self):
-        pass
+    def GetArtInfo(self):
+        return self.tit_lin_day_dict
 
-
+    def ShowArtList(self, article=0, link=0, url=0):
+        print("article num: ", len(self.tit_lin_day_dict))
+        for i in range(1, len(self.tit_lin_day_dict)+1):
+            if article: print("article: ", self.tit_lin_day_dict[i]['article'])
+            if link: print("url: ", self.tit_lin_day_dict[i]['url'])
+            if url: print("day: ", self.tit_lin_day_dict[i]['day'])
 
 if __name__ == "__main__":
     start = time.time()
     test = SearchMachine("비트코인", day=7, debug=1)
-    test.Run()
+    test.run()
     print("time: {0} 초".format(time.time() - start))
