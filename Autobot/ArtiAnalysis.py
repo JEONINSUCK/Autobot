@@ -47,5 +47,9 @@ if __name__ == "__main__":
     site_pages = search_machine.GetArtInfo()
     
     test = Analysis(debug=1)
-    test.GetNoun(page=site_pages[2]['url'])
+    result = test.GetNoun(page=site_pages[1]['url'])
+    print(result)
+    # for re in result:
+    #     print("{0} : {1}".format(re['tag'], re['count']))
+    
     print("time: {0}".format(time.time() - start))

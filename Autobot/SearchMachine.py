@@ -37,11 +37,9 @@ class SearchMachine():
         if self.page_num > 1:
             for i in range(2, self.page_num+1):
                 self.url = self.UrlSet(keyword=self.keyword, day=self.day, page=i)
-                thread_name = "t" + str(i)
-                thread_name = threading.Thread(target=self.Art_Tit_Parser, args=(self.url,))
-                thread_name.start()
-                self.thread_name_lists.append(thread_name)
-
+                self.thread_name_lists.append(threading.Thread(target=self.Art_Tit_Parser, args=(self.url,)))
+                self.thread_name_lists[i-2].start()
+                
             for self.thread_name_list in self.thread_name_lists:
                 self.thread_name_list.join()
         
@@ -80,15 +78,24 @@ class SearchMachine():
     def GetArtInfo(self):
         return self.tit_lin_day_dict
 
-    def ShowArtList(self, article=0, link=0, url=0):
+    def ShowArtList(self, article=0, url=0, day=0):
         print("article num: ", len(self.tit_lin_day_dict))
+        # if article:
+        #     for i in range(1, len(self.tit_lin_day_dict)+1):
+        #         print("article: ", self.tit_lin_day_dict[i]['article'])
+        # if link:
+        #     for i in range(1, len(self.tit_lin_day_dict)+1):
+        #         print("url: ", self.tit_lin_day_dict[i]['url'])
+        # if url:
+        #     for i in range(1, len(self.tit_lin_day_dict)+1):
+        #         print("day: ", self.tit_lin_day_dict[i]['day'])
         for i in range(1, len(self.tit_lin_day_dict)+1):
             if article: print("article: ", self.tit_lin_day_dict[i]['article'])
-            if link: print("url: ", self.tit_lin_day_dict[i]['url'])
-            if url: print("day: ", self.tit_lin_day_dict[i]['day'])
+            if url: print("url: ", self.tit_lin_day_dict[i]['url'])
+            if day: print("day: ", self.tit_lin_day_dict[i]['day'])
 
 if __name__ == "__main__":
     start = time.time()
-    test = SearchMachine("비트코인", day=7, debug=1)
+    test = SearchMachine("비트코인", day=30, debug=1)
     test.run()
     print("time: {0} 초".format(time.time() - start))
