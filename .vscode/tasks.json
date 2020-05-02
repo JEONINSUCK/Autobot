@@ -6,7 +6,7 @@
         {
             "label": "Python Run",
             "type": "shell",
-            "command": "python3",
+            "command": "/Users/jeoninsuck/opt/anaconda3/envs/crawler/bin/python",
             "args": [
                 "${file}"
             ],

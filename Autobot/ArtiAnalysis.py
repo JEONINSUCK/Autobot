@@ -1,30 +1,37 @@
 import urllib.request
 from bs4 import BeautifulSoup
 import time
+import jpype
 from konlpy.tag import Okt
 from collections import Counter
 
+
 from SearchMachine import SearchMachine
+
+okt = Okt()
 
 class Analysis():
     def __init__(self,debug=0):
         super().__init__()
+        # jpype.attachThreadToJVM()
         self.debug = debug
+        self.okt = okt
 
     def GetNoun(self, page):
         if self.debug: print("GetNoun() started...")
         self.buff = ""
         self.tag_count_list = []
         self.tags_list = []
+        # jpype.attachThreadToJVM()
 
         with urllib.request.urlopen(page) as self.response:
             self.soup = BeautifulSoup(self.response.read(), "html.parser")
             self.nouns = self.soup.select("p")
             for self.noun in self.nouns:
                 self.buff += self.noun.text
-
-            self.nlpy = Okt()
-            self.nouns = self.nlpy.nouns(self.buff)
+            
+            self.okt = Okt()
+            self.nouns = self.okt.nouns(self.buff)
 
             self.count = Counter(self.nouns)
             for i,j in self.count.most_common():
@@ -32,6 +39,7 @@ class Analysis():
                 self.tag_count_list.append(dicts)
                 self.tags_list.append(dicts['tag'])
 
+        print(self.tag_count_list)
         if self.debug: print("GetNoun() finished...\n")
         return self.tag_count_list
 
