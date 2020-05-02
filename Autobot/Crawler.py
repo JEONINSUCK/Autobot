@@ -4,6 +4,7 @@ from multiprocessing import Process
 from multiprocessing import Pool
 import threading
 import time
+import jpype
 
 class Crawler():
     def __init__(self, keyword, day=0, debug=0):

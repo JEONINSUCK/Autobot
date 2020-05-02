@@ -5,6 +5,9 @@ import jpype
 from konlpy.tag import Okt
 from collections import Counter
 
+from multiprocessing import Process
+from threading import Thread
+
 
 from SearchMachine import SearchMachine
 
@@ -13,25 +16,29 @@ okt = Okt()
 class Analysis():
     def __init__(self,debug=0):
         super().__init__()
-        # jpype.attachThreadToJVM()
         self.debug = debug
-        self.okt = okt
+
+    
 
     def GetNoun(self, page):
         if self.debug: print("GetNoun() started...")
         self.buff = ""
         self.tag_count_list = []
         self.tags_list = []
-        # jpype.attachThreadToJVM()
 
         with urllib.request.urlopen(page) as self.response:
             self.soup = BeautifulSoup(self.response.read(), "html.parser")
             self.nouns = self.soup.select("p")
             for self.noun in self.nouns:
                 self.buff += self.noun.text
-            
-            self.okt = Okt()
-            self.nouns = self.okt.nouns(self.buff)
+
+            path = jpype.getDefaultJVMPath()
+            if jpype.isJVMStarted():
+                jpype.attachThreadToJVM()
+            else:
+                jpype.startJVM(path)
+
+            self.nouns = okt.nouns(self.buff)
 
             self.count = Counter(self.nouns)
             for i,j in self.count.most_common():
@@ -55,8 +62,16 @@ if __name__ == "__main__":
     site_pages = search_machine.GetArtInfo()
     
     test = Analysis(debug=1)
-    result = test.GetNoun(page=site_pages[1]['url'])
-    print(result)
+
+    t1 = Thread(target=test.GetNoun, args=(site_pages[3]['url'],))
+    t1.start()
+    t1.join()
+    # pro = Process(target=test.GetNoun, args=(site_pages[1]['url'],))
+    # pro.start()
+    # pro.join()
+
+    # result = test.GetNoun(page=site_pages[1]['url'])
+    # print(result)
     # for re in result:
     #     print("{0} : {1}".format(re['tag'], re['count']))
     

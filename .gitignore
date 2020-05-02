@@ -1,2 +1,3 @@
 Autobot/test.py
 *.pyc
+*.log
