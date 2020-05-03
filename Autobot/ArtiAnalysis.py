@@ -1,13 +1,10 @@
 import urllib.request
 from bs4 import BeautifulSoup
 import time
-import jpype
 from konlpy.tag import Okt
 from collections import Counter
-
-from multiprocessing import Process
-from threading import Thread
-
+import jpype
+# from threading import Thread
 
 from SearchMachine import SearchMachine
 
@@ -46,7 +43,6 @@ class Analysis():
                 self.tag_count_list.append(dicts)
                 self.tags_list.append(dicts['tag'])
 
-        print(self.tag_count_list)
         if self.debug: print("GetNoun() finished...\n")
         return self.tag_count_list
 
@@ -63,15 +59,15 @@ if __name__ == "__main__":
     
     test = Analysis(debug=1)
 
-    t1 = Thread(target=test.GetNoun, args=(site_pages[3]['url'],))
-    t1.start()
-    t1.join()
+    # t1 = Thread(target=test.GetNoun, args=(site_pages[3]['url'],))
+    # t1.start()
+    # t1.join()
     # pro = Process(target=test.GetNoun, args=(site_pages[1]['url'],))
     # pro.start()
     # pro.join()
 
-    # result = test.GetNoun(page=site_pages[1]['url'])
-    # print(result)
+    result = test.GetNoun(page=site_pages[1]['url'])
+    print(result)
     # for re in result:
     #     print("{0} : {1}".format(re['tag'], re['count']))
     

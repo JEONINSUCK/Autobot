@@ -1,3 +1,6 @@
 Autobot/test.py
 *.pyc
 *.log
+test.py
+test01/
+.vscode/*

@@ -98,4 +98,5 @@ if __name__ == "__main__":
     start = time.time()
     test = SearchMachine("비트코인", day=30, debug=1)
     test.run()
+    test.ShowArtList(article=1)
     print("time: {0} 초".format(time.time() - start))

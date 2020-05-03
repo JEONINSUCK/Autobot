@@ -26,9 +26,9 @@ class Crawler():
 
         self.analysis = Analysis(debug=1)
         
-        pro = Process(target=self.analysis.GetNoun, args=(self.art_info_list[1]['url'],))
-        pro.start()
-        pro.join()
+        # pro = Process(target=self.analysis.GetNoun, args=(self.art_info_list[1]['url'],))
+        # pro.start()
+        # pro.join()
 
         # for index in range(len(self.art_info_list)):
         #     self.url_list.append(self.art_info_list[index+1]['url'])
