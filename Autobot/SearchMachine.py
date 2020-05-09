@@ -30,7 +30,6 @@ class SearchMachine():
 
         if self.is_search:
             self.url = self.UrlSet(keyword=self.keyword, day=self.day, page=self.page_num+1)
-        
         self.Art_Tit_Parser(self.url)
         self.page_num = self.PageNumSet()
         

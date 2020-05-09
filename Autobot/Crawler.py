@@ -22,7 +22,7 @@ class Crawler():
         self.search_machine = SearchMachine(keyword=self.keyword, day=self.day, debug=self.debug)
         self.search_machine.run()
         self.art_info_list = self.search_machine.GetArtInfo()
-        # self.search_machine.ShowArtList(article=1, url=1, day=1)
+        self.search_machine.ShowArtList(article=1, url=1, day=1)
 
         self.analysis = Analysis(debug=1)
         
@@ -33,18 +33,18 @@ class Crawler():
         # for index in range(len(self.art_info_list)):
         #     self.url_list.append(self.art_info_list[index+1]['url'])
         
-        # self.multi_pool = Pool(processes=4)
-        # self.multi_pool.map(self.analysis.GetNoun, self.url_list[1])
-        # self.multi_pool.close()
-        # self.multi_pool.join()
+        self.multi_pool = Pool(processes=4)
+        self.multi_pool.map(self.analysis.GetNoun, self.url_list[1])
+        self.multi_pool.close()
+        self.multi_pool.join()
 
         
-        # result = self.analysis.GetNoun(page=self.art_info_list[1]['url'])
-        # for i in range(1,len(self.art_info_list)+1):
-        #     thread_name = "t" + str(i)
-        #     thread_name = threading.Thread(target=self.analysis.GetNoun, args=(self.art_info_list[i]['url'],))
-        #     thread_name.start()
-        #     self.thread_name.append(thread_name)
+        result = self.analysis.GetNoun(page=self.art_info_list[1]['url'])
+        for i in range(1,len(self.art_info_list)+1):
+            thread_name = "t" + str(i)
+            thread_name = threading.Thread(target=self.analysis.GetNoun, args=(self.art_info_list[i]['url'],))
+            thread_name.start()
+            self.thread_name.append(thread_name)
         
         # self.nouns = 
 
