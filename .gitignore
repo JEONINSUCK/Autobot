@@ -6,3 +6,4 @@ test01/
 .vscode/*
 key.lock
 TradingBot/BitHumb/key.lock
+TradingBot/BitHumb/api_test.py

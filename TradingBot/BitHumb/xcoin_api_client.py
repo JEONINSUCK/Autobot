@@ -56,8 +56,8 @@ class XCoinAPI:
 
 		nonce = self.usecTime();
 
-		# data = endpoint + chr(0) + str_data + chr(0) + nonce;
-		data = endpoint + str_data + nonce;
+		data = endpoint + chr(0) + str_data + chr(0) + nonce;
+		# data = endpoint + str_data + nonce;
 		utf8_data = data.encode('utf-8');
 		
 		key = self.api_secret;

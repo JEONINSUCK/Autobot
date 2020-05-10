@@ -4,6 +4,11 @@ import os
 import pybithumb
 from xcoin_api_client import *
 
+DEFUALTCOIN = "BTG"
+DEFUALTCOUNT = 5
+BUY = "bid"
+SELL = "ask"
+
 DEFUALTPATH = "https://api.bithumb.com"
 TICKERPATH = "/public/ticker"
 ORDERBOOKPATH = "/public/orderbook"
@@ -11,12 +16,15 @@ TRANSHISPATH = "/public/transaction_history"
 BALANCEPATH = "/info/balance"
 BTCIPATH = "/public/btci"
 ACCOUNTPATH = "/info/account"
+ORDERPATH = "/info/orders"
+PLACEPATH = "/trade/place"
+
 
 class Public():
     def __init__(self, debug=0):
         self.debug = debug
 
-    def Ticker(self, order_currency="ALL", payment_currency="KRW"):
+    def Ticker(self, order_currency=DEFUALTCOIN, payment_currency="KRW"):
         """
         Get current price of the coin
         docs: https://apidocs.bithumb.com/docs/ticker
@@ -51,7 +59,7 @@ class Public():
         except Exception as e:
             return -1
     
-    def OrderBook(self, order_currency="ALL", payment_currency="KRW", count=10):
+    def OrderBook(self, order_currency=DEFUALTCOIN, payment_currency="KRW", count=10):
         """
         Get current information of order 
         docs: https://apidocs.bithumb.com/docs/order_book
@@ -95,7 +103,7 @@ class Public():
         except Exception as e:
             return -1
 
-    def TransHistory(self, order_currency="ALL", payment_currency="KRW", count=10):
+    def TransHistory(self, order_currency=DEFUALTCOIN, payment_currency="KRW", count=10):
         """
         Get coin transaction history
         docs: https://apidocs.bithumb.com/docs/transaction_history
@@ -210,11 +218,73 @@ class Private():
         self.debug = debug
         self.connect = connect
         self.secret = secret
+        self.xcoin = XCoinAPI(self.connect, self.secret)
 
-    def Account(self):
+    """
+    Get my account & coin trade fee
+    docs: https://apidocs.bithumb.com/docs/account
+
+    * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * param payment_currency: KRW
+    * return type: dict
+    """
+    def Account(self, order_currency=DEFUALTCOIN, payment_currency="KRW"):
         try:
-            url = DEFUALTPATH + ACCOUNTPATH
+            rgParams = { 
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+                         }
+            req = self.xcoin.xcoinApiCall(ACCOUNTPATH, rgParams)
+            return req
+        except Exception as e:
+            return e
+    
+    """
+    Get my asset
+    docs: https://apidocs.bithumb.com/docs/balance
 
+    * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * return type: dict
+    """
+    def Balance(self, currency=DEFUALTCOIN):
+        try:
+            rgParams = { 
+                        "currency": currency
+                         }
+            req = self.xcoin.xcoinApiCall(BALANCEPATH, rgParams)
+            return req
+        except Exception as e:
+            return e
+
+    def Place(self,units, price, type, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency,
+                        "units": float(units),
+                        "price": int(price),
+                        "type": type
+            }
+            req = self.xcoin.xcoinApiCall(PLACEPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+
+    def Order(self, type, order_id, count=DEFUALTCOUNT, after=None, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        # "order_id": order_id,
+                        # "type" : type,
+                        # "count": count,
+                        # "after": after,
+                        "order_currency": order_currency,
+                        # "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(ORDERPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+        
 if __name__ == "__main__":
     start = time.time()
 
@@ -223,8 +293,9 @@ if __name__ == "__main__":
         connect = buf[1]
         secret = buf[3]
 
-    print(connect)
-    print(secret)
+    pri_test = Private(connect, secret)
+    # print(pri_test.Place(units=1, price=10820, type=BUY))
+    print(pri_test.Order(type=BUY,order_id="C0111000000012701182"))
 
     # print(Path().KeyPath())
     
