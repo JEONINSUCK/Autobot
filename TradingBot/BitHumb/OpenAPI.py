@@ -10,12 +10,11 @@ ORDERBOOKPATH = "/public/orderbook"
 TRANSHISPATH = "/public/transaction_history"
 BALANCEPATH = "/info/balance"
 BTCIPATH = "/public/btci"
+ACCOUNTPATH = "/info/account"
 
 class Public():
     def __init__(self, debug=0):
         self.debug = debug
-        # self.connect_key = connect_key
-        # self.secret_key = secret_key
 
     def Ticker(self, order_currency="ALL", payment_currency="KRW"):
         """
@@ -179,23 +178,42 @@ class Path():
         self.default_path = __file__
         self.key_path = "/key.lock"
 
+    """
+    Find the key.lock path
+
+    * return type: str
+    * return 
+    """
     def KeyPath(self):
         dirpath = self.GetDir(self.default_path)
         if(self.CheckFile(dirpath + self.key_path)):
             return dirpath + self.key_path
     
+    # Confirm it is a directory
     def CheckDir(self, path):
         return os.path.isdir(path)
 
+    # Filter File
     def GetDir(self, path):
         return os.path.dirname(path)
 
+    # Get the under directroy list
     def GetDirList(self, path):
         return os.listdir(path)    
-        
+    
+    # Check the file whether existence and not existence
     def CheckFile(self, path):
         return os.path.exists(path)
 
+class Private():
+    def __init__(self, connect, secret, debug=0):
+        self.debug = debug
+        self.connect = connect
+        self.secret = secret
+
+    def Account(self):
+        try:
+            url = DEFUALTPATH + ACCOUNTPATH
 
 if __name__ == "__main__":
     start = time.time()
@@ -204,6 +222,7 @@ if __name__ == "__main__":
         buf = f.read().split()
         connect = buf[1]
         secret = buf[3]
+
     print(connect)
     print(secret)
 
