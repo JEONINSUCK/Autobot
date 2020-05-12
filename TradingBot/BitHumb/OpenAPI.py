@@ -17,7 +17,12 @@ BALANCEPATH = "/info/balance"
 BTCIPATH = "/public/btci"
 ACCOUNTPATH = "/info/account"
 ORDERPATH = "/info/orders"
+ORDERDETAILPATH = "/info/order_detail"
+TRANSPATH = "/info/user_transactions"
 PLACEPATH = "/trade/place"
+CANCELPATH = "/trade/cancel"
+MARKETBUYPATH = "/trade/market_buy"
+MARKETSELLPATH = "/trade/market_sell"
 
 
 class Public():
@@ -256,6 +261,16 @@ class Private():
         except Exception as e:
             return e
 
+    """
+    Order to sell or buy the coin
+    docs: https://apidocs.bithumb.com/docs/place
+
+    * Param units: coin quantity
+    * Param price: coin price
+    * param type: BUY, SELL
+    * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * return type: dict
+    """
     def Place(self,units, price, type, order_currency=DEFUALTCOIN, payment_currency="KRW"):
         try:
             rgParms = {
@@ -269,22 +284,120 @@ class Private():
             return req
         except Exception as e:
             return e
+    
+    """
+    Look up the watting transaction history
+    docs: https://apidocs.bithumb.com/docs/orders
 
+    * Param type: BUY, SELL
+    * Param order_id: your order number
+    * Param count: searching count
+    * Param after: searching after date
+    * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * param payment_currency: KRW
+    * return type: dict
+    """
     def Order(self, type, order_id, count=DEFUALTCOUNT, after=None, order_currency=DEFUALTCOIN, payment_currency="KRW"):
         try:
             rgParms = {
-                        # "order_id": order_id,
-                        # "type" : type,
-                        # "count": count,
-                        # "after": after,
+                        "order_id": order_id,
+                        "type" : type,
+                        "count": count,
+                        "after": after,
                         "order_currency": order_currency,
-                        # "payment_currency": payment_currency
+                        "payment_currency": payment_currency
             }
             req = self.xcoin.xcoinApiCall(ORDERPATH, rgParms)
             return req
         except Exception as e:
             return e
-        
+    
+    """
+    Look up the traded trasaction history
+    docs: https://apidocs.bithumb.com/docs/orders_detail
+
+    * Param order_id: your order number
+    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * Param payment_currency: KRW
+    * return type: dict
+    """
+    def OrderDetail(self, order_id, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        "order_id": order_id,
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(ORDERDETAILPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+    
+    """
+    Cancel the watting order
+    docs: https://apidocs.bithumb.com/docs/cancel
+
+    * Param type: BUY, SELL
+    * Param order_id: your order number
+    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * Param payment_currency: KRW
+    * return type: dict
+    """
+    def Cancel(self, type, order_id, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        "type": type,
+                        "order_id": order_id,
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(CANCELPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+    
+    """
+    Buy the coin as market price
+    docs: https://apidocs.bithumb.com/docs/market_buy
+
+    * Param units: coin quantity
+    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * Param payment_currency: KRW
+    * return type: dict
+    """
+    def MarketBuy(self, units, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        "units": float(units),
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(MARKETBUYPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+
+    """
+    Sell the coin as market price
+    docs: https://apidocs.bithumb.com/docs/market_sell
+
+    * Param units: coin quantity
+    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+    * Param payment_currency: KRW
+    * return type: dict
+    """
+    def MarketSell(self, units, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+        try:
+            rgParms = {
+                        "units": float(units),
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(MARKETSELLPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+
 if __name__ == "__main__":
     start = time.time()
 
@@ -294,13 +407,21 @@ if __name__ == "__main__":
         secret = buf[3]
 
     pri_test = Private(connect, secret)
-    # print(pri_test.Place(units=1, price=10820, type=BUY))
-    print(pri_test.Order(type=BUY,order_id="C0111000000012701182"))
+    # print(pri_test.Balance())
+    # print(pri_test.Account())
+    # print(pri_test.Place(units=1, price=10820, type=SELL))
+    # print(pri_test.Order(type=SELL,order_id="C0111000000012844333")) 
+    # print(pri_test.OrderDetail(order_id="C0111000000012849231"))
+    # print(pri_test.Cancel(type=SELL, order_id="C0111000000012844333"))
+    # print(pri_test.MarketSell(units=0.8))
+    # print(pri_test.MarketBuy(units=0.8))
+    
+    
 
     # print(Path().KeyPath())
     
     # print(Public().Ticker("BTC"))
-    # print(Public().OrderBook("BTC"))
+    # print(Public().OrderBook("BTG"))
     # print(Public().TransHistory("BTC"))
     # print(Public().BTCI())
     
