@@ -5,6 +5,7 @@ import pybithumb
 from xcoin_api_client import *
 
 DEFUALTCOIN = "BTG"
+DEFUALTPAYMENT = "KRW"
 DEFUALTCOUNT = 5
 BUY = "bid"
 SELL = "ask"
@@ -29,7 +30,7 @@ class Public():
     def __init__(self, debug=0):
         self.debug = debug
 
-    def Ticker(self, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def Ticker(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         """
         Get current price of the coin
         docs: https://apidocs.bithumb.com/docs/ticker
@@ -60,11 +61,11 @@ class Public():
         try:
             url = DEFUALTPATH + TICKERPATH + "/{0}_{1}".format(order_currency, payment_currency)
             req = requests.get(url)
-            return req.json()['data']
+            return req.json()
         except Exception as e:
-            return -1
+            return ㄷ
     
-    def OrderBook(self, order_currency=DEFUALTCOIN, payment_currency="KRW", count=10):
+    def OrderBook(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT, count=10):
         """
         Get current information of order 
         docs: https://apidocs.bithumb.com/docs/order_book
@@ -108,7 +109,7 @@ class Public():
         except Exception as e:
             return -1
 
-    def TransHistory(self, order_currency=DEFUALTCOIN, payment_currency="KRW", count=10):
+    def TransHistory(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT, count=10):
         """
         Get coin transaction history
         docs: https://apidocs.bithumb.com/docs/transaction_history
@@ -233,7 +234,7 @@ class Private():
     * param payment_currency: KRW
     * return type: dict
     """
-    def Account(self, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def Account(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParams = { 
                         "order_currency": order_currency,
@@ -271,7 +272,7 @@ class Private():
     * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
     * return type: dict
     """
-    def Place(self,units, price, type, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def Place(self,units, price, type, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "order_currency": order_currency,
@@ -297,7 +298,7 @@ class Private():
     * param payment_currency: KRW
     * return type: dict
     """
-    def Order(self, type, order_id, count=DEFUALTCOUNT, after=None, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def Order(self, type, order_id, count=DEFUALTCOUNT, after=None, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "order_id": order_id,
@@ -321,7 +322,7 @@ class Private():
     * Param payment_currency: KRW
     * return type: dict
     """
-    def OrderDetail(self, order_id, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def OrderDetail(self, order_id, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "order_id": order_id,
@@ -343,7 +344,7 @@ class Private():
     * Param payment_currency: KRW
     * return type: dict
     """
-    def Cancel(self, type, order_id, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def Cancel(self, type, order_id, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "type": type,
@@ -365,7 +366,7 @@ class Private():
     * Param payment_currency: KRW
     * return type: dict
     """
-    def MarketBuy(self, units, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def MarketBuy(self, units, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "units": float(units),
@@ -386,7 +387,7 @@ class Private():
     * Param payment_currency: KRW
     * return type: dict
     """
-    def MarketSell(self, units, order_currency=DEFUALTCOIN, payment_currency="KRW"):
+    def MarketSell(self, units, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
         try:
             rgParms = {
                         "units": float(units),
@@ -416,11 +417,9 @@ if __name__ == "__main__":
     # print(pri_test.MarketSell(units=0.8))
     # print(pri_test.MarketBuy(units=0.8))
     
-    
-
     # print(Path().KeyPath())
     
-    # print(Public().Ticker("BTC"))
+    print(Public().Ticker("BTG"))
     # print(Public().OrderBook("BTG"))
     # print(Public().TransHistory("BTC"))
     # print(Public().BTCI())
