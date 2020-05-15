@@ -4,13 +4,13 @@ import os
 import pybithumb
 from xcoin_api_client import *
 
-DEFUALTCOIN = "BTG"
-DEFUALTPAYMENT = "KRW"
-DEFUALTCOUNT = 5
+DEFAULTCOIN = "BTG"
+DEFAULTPAYMENT = "KRW"
+DEFAULTCOUNT = 5
 BUY = "bid"
 SELL = "ask"
 
-DEFUALTPATH = "https://api.bithumb.com"
+DEFAULTPATH = "https://api.bithumb.com"
 TICKERPATH = "/public/ticker"
 ORDERBOOKPATH = "/public/orderbook"
 TRANSHISPATH = "/public/transaction_history"
@@ -30,7 +30,7 @@ class Public():
     def __init__(self, debug=0):
         self.debug = debug
 
-    def Ticker(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+    def Ticker(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
         """
         Get current price of the coin
         docs: https://apidocs.bithumb.com/docs/ticker
@@ -59,13 +59,13 @@ class Public():
     }
         """
         try:
-            url = DEFUALTPATH + TICKERPATH + "/{0}_{1}".format(order_currency, payment_currency)
+            url = DEFAULTPATH + TICKERPATH + "/{0}_{1}".format(order_currency, payment_currency)
             req = requests.get(url)
             return req.json()
         except Exception as e:
-            return ㄷ
+            return e
     
-    def OrderBook(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT, count=10):
+    def OrderBook(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT, count=10):
         """
         Get current information of order 
         docs: https://apidocs.bithumb.com/docs/order_book
@@ -103,13 +103,13 @@ class Public():
         
         """
         try:
-            url = DEFUALTPATH + ORDERBOOKPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
+            url = DEFAULTPATH + ORDERBOOKPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
             req = requests.get(url)
             return req.json()['data']
         except Exception as e:
             return -1
 
-    def TransHistory(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT, count=10):
+    def TransHistory(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT, count=10):
         """
         Get coin transaction history
         docs: https://apidocs.bithumb.com/docs/transaction_history
@@ -147,7 +147,7 @@ class Public():
     }
         """
         try:
-            url = DEFUALTPATH + TRANSHISPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
+            url = DEFAULTPATH + TRANSHISPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
             req = requests.get(url)
             return req.json()['data']
         except Exception as e:
@@ -180,7 +180,7 @@ class Public():
     }
         """
         try:
-            url = DEFUALTPATH + BTCIPATH
+            url = DEFAULTTPATH + BTCIPATH
             req = requests.get(url)
             return req.json()['data']
         except Exception as e:
@@ -192,13 +192,14 @@ class Path():
         self.default_path = __file__
         self.key_path = "/key.lock"
 
-    """
-    Find the key.lock path
-
-    * return type: str
-    * return 
-    """
+    
     def KeyPath(self):
+        """
+        Find the key.lock path
+
+        * return type: str
+        * return 
+        """
         dirpath = self.GetDir(self.default_path)
         if(self.CheckFile(dirpath + self.key_path)):
             return dirpath + self.key_path
@@ -226,15 +227,16 @@ class Private():
         self.secret = secret
         self.xcoin = XCoinAPI(self.connect, self.secret)
 
-    """
-    Get my account & coin trade fee
-    docs: https://apidocs.bithumb.com/docs/account
 
-    * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * param payment_currency: KRW
-    * return type: dict
-    """
-    def Account(self, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+    def Account(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Get my account & coin trade fee
+        docs: https://apidocs.bithumb.com/docs/account
+
+        * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParams = { 
                         "order_currency": order_currency,
@@ -245,14 +247,15 @@ class Private():
         except Exception as e:
             return e
     
-    """
-    Get my asset
-    docs: https://apidocs.bithumb.com/docs/balance
 
-    * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * return type: dict
-    """
-    def Balance(self, currency=DEFUALTCOIN):
+    def Balance(self, currency=DEFAULTCOIN):
+        """
+        Get my asset
+        docs: https://apidocs.bithumb.com/docs/balance
+
+        * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * return type: dict
+        """
         try:
             rgParams = { 
                         "currency": currency
@@ -262,17 +265,18 @@ class Private():
         except Exception as e:
             return e
 
-    """
-    Order to sell or buy the coin
-    docs: https://apidocs.bithumb.com/docs/place
+   
+    def Place(self,units, price, type, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Order to sell or buy the coin
+        docs: https://apidocs.bithumb.com/docs/place
 
-    * Param units: coin quantity
-    * Param price: coin price
-    * param type: BUY, SELL
-    * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * return type: dict
-    """
-    def Place(self,units, price, type, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param units: coin quantity
+        * Param price: coin price
+        * param type: BUY, SELL
+        * param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * return type: dict
+        """
         try:
             rgParms = {
                         "order_currency": order_currency,
@@ -286,25 +290,26 @@ class Private():
         except Exception as e:
             return e
     
-    """
-    Look up the watting transaction history
-    docs: https://apidocs.bithumb.com/docs/orders
+    
+    def Order(self, type, order_id, count=DEFAULTCOUNT, after=None, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Look up the watting transaction history
+        docs: https://apidocs.bithumb.com/docs/orders
 
-    * Param type: BUY, SELL
-    * Param order_id: your order number
-    * Param count: searching count
-    * Param after: searching after date
-    * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * param payment_currency: KRW
-    * return type: dict
-    """
-    def Order(self, type, order_id, count=DEFUALTCOUNT, after=None, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param type: BUY, SELL
+        * Param order_id: your order number
+        * Param count: searching count
+        * Param after: searching after date
+        * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParms = {
-                        "order_id": order_id,
-                        "type" : type,
-                        "count": count,
-                        "after": after,
+                        # "order_id": order_id,
+                        # "type" : type,
+                        # "count": count,
+                        # "after": after,
                         "order_currency": order_currency,
                         "payment_currency": payment_currency
             }
@@ -313,16 +318,17 @@ class Private():
         except Exception as e:
             return e
     
-    """
-    Look up the traded trasaction history
-    docs: https://apidocs.bithumb.com/docs/orders_detail
+    
+    def OrderDetail(self, order_id, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Look up the traded trasaction history
+        docs: https://apidocs.bithumb.com/docs/orders_detail
 
-    * Param order_id: your order number
-    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * Param payment_currency: KRW
-    * return type: dict
-    """
-    def OrderDetail(self, order_id, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param order_id: your order number
+        * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * Param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParms = {
                         "order_id": order_id,
@@ -334,17 +340,18 @@ class Private():
         except Exception as e:
             return e
     
-    """
-    Cancel the watting order
-    docs: https://apidocs.bithumb.com/docs/cancel
+    
+    def Cancel(self, type, order_id, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Cancel the watting order
+        docs: https://apidocs.bithumb.com/docs/cancel
 
-    * Param type: BUY, SELL
-    * Param order_id: your order number
-    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * Param payment_currency: KRW
-    * return type: dict
-    """
-    def Cancel(self, type, order_id, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param type: BUY, SELL
+        * Param order_id: your order number
+        * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * Param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParms = {
                         "type": type,
@@ -357,16 +364,17 @@ class Private():
         except Exception as e:
             return e
     
-    """
-    Buy the coin as market price
-    docs: https://apidocs.bithumb.com/docs/market_buy
+    
+    def MarketBuy(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Buy the coin as market price
+        docs: https://apidocs.bithumb.com/docs/market_buy
 
-    * Param units: coin quantity
-    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * Param payment_currency: KRW
-    * return type: dict
-    """
-    def MarketBuy(self, units, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param units: coin quantity
+        * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * Param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParms = {
                         "units": float(units),
@@ -378,16 +386,17 @@ class Private():
         except Exception as e:
             return e
 
-    """
-    Sell the coin as market price
-    docs: https://apidocs.bithumb.com/docs/market_sell
+    
+    def MarketSell(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Sell the coin as market price
+        docs: https://apidocs.bithumb.com/docs/market_sell
 
-    * Param units: coin quantity
-    * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
-    * Param payment_currency: KRW
-    * return type: dict
-    """
-    def MarketSell(self, units, order_currency=DEFUALTCOIN, payment_currency=DEFUALTPAYMENT):
+        * Param units: coin quantity
+        * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * Param payment_currency: KRW
+        * return type: dict
+        """
         try:
             rgParms = {
                         "units": float(units),
@@ -410,7 +419,7 @@ if __name__ == "__main__":
     pri_test = Private(connect, secret)
     # print(pri_test.Balance())
     # print(pri_test.Account())
-    # print(pri_test.Place(units=1, price=10820, type=SELL))
+    # print(pri_test.Place(units=1, price=10800, type=BUY))
     # print(pri_test.Order(type=SELL,order_id="C0111000000012844333")) 
     # print(pri_test.OrderDetail(order_id="C0111000000012849231"))
     # print(pri_test.Cancel(type=SELL, order_id="C0111000000012844333"))
@@ -419,7 +428,7 @@ if __name__ == "__main__":
     
     # print(Path().KeyPath())
     
-    print(Public().Ticker("BTG"))
+    # print(Public().Ticker("BTG"))
     # print(Public().OrderBook("BTG"))
     # print(Public().TransHistory("BTC"))
     # print(Public().BTCI())
