@@ -1,0 +1,12 @@
+# RSS URL, interval(seconds)
+http://www.coindeskkorea.com/rss/allArticle.xml,1800
+# http://www.coindeskkorea.com/rss/S1N8.xml,1800
+# https://kr.investing.com/crypto/xrp/news,1800
+# https://kr.investing.com/crypto/xrp/analysis,1800
+# https://www.coindeskkorea.com,1800
+# http://m.coinreaders.com/b.html?sc=sc10,1800
+# http://m.coinreaders.com/b.html?sc=sc6,1800
+
+
+
+# http://newssearch.naver.com/search.naver?where=rss&query=%NAME%&field=0&nx_search_query=&nx_and_query=&nx_sub_query=&nx_search_hlquery=&is_dts=0`

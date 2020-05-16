@@ -1,6 +1,5 @@
 import threading
 import time
-import jpype
 import sys
 try:
     from Lib_v1 import SearchMachine, ArtiAnalysis

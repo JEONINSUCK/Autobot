@@ -117,3 +117,5 @@ Autobot/test.py
 test.py
 test01/
 .vscode/*
+virtual.*
+config.dev.json
