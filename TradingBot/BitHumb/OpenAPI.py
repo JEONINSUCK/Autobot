@@ -6,7 +6,7 @@ from xcoin_api_client import *
 
 DEFAULTCOIN = "BTG"
 DEFAULTPAYMENT = "KRW"
-DEFAULTCOUNT = 5
+DEFAULTCOUNT = 100
 BUY = "bid"
 SELL = "ask"
 
@@ -308,7 +308,7 @@ class Private():
             rgParms = {
                         # "order_id": order_id,
                         # "type" : type,
-                        # "count": count,
+                        "count": count,
                         # "after": after,
                         "order_currency": order_currency,
                         "payment_currency": payment_currency

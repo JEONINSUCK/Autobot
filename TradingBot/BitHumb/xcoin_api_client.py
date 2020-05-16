@@ -15,7 +15,7 @@ import urllib.parse
 import pycurl
 import json
 import requests
-
+import io
 
 class XCoinAPI:
 	api_url = "https://api.bithumb.com";
@@ -25,9 +25,10 @@ class XCoinAPI:
 	def __init__(self, api_key, api_secret):
 		self.api_key = api_key;
 		self.api_secret = api_secret;
+		self.contents = ""
 
 	def body_callback(self, buf):
-		self.contents = buf;
+		self.contents += buf.decode('utf-8')
 
 	def microtime(self, get_as_float = False):
 		if get_as_float:
@@ -71,6 +72,7 @@ class XCoinAPI:
 		api_sign = base64.b64encode(utf8_hex_output);
 		utf8_api_sign = api_sign.decode('utf-8');
 
+		# storage = io.StringIO()
 
 		curl_handle = pycurl.Curl();
 		curl_handle.setopt(pycurl.POST, 1);
@@ -81,11 +83,12 @@ class XCoinAPI:
 		curl_handle.setopt(curl_handle.URL, url);
 		curl_handle.setopt(curl_handle.HTTPHEADER, ['Api-Key: ' + self.api_key, 'Api-Sign: ' + utf8_api_sign, 'Api-Nonce: ' + nonce]);
 		curl_handle.setopt(curl_handle.WRITEFUNCTION, self.body_callback);
+		# curl_handle.setopt(curl_handle.WRITEFUNCTION, storage.write);
 		curl_handle.perform();
 
-		#response_code = curl_handle.getinfo(pycurl.RESPONSE_CODE); # Get http response status code.
+		response_code = curl_handle.getinfo(pycurl.RESPONSE_CODE); # Get http response status code.
 
 		curl_handle.close();
 		
-		# return (json.loads(self.contents));
-		return self.contents.json()
+		return (json.loads(self.contents));
+		# return (json.loads(stroage.getvalue()))
