@@ -6,7 +6,7 @@ class Bithumb():
     def __init__(self, con_key, secr_key):
         self.pri_api = Private(con_key, secr_key)
         self.pblc_api = Public()
-        self.order_id_list = []
+        self.order_id_dict = {"buy": [], "sell": []}
 
     
     def GetPrice(self, order_currency="BTG", payment_currency="KRW"):
@@ -129,7 +129,12 @@ class Bithumb():
             if "message" in resp:
                 return resp['message']
             resp = resp['data']
-            return resp
+            for res in resp:
+                if res['type'] == BUY:
+                    self.order_id_dict["buy"].append(res['order_id'])
+                elif res['type'] == SELL:
+                    self.order_id_dict["sell"].append(res['order_id'])
+            return self.order_id_dict
         except Exception as e:
             return e
 
