@@ -4,8 +4,9 @@ import datetime
 
 class Bithumb():
     def __init__(self, con_key, secr_key):
-        self.pri_api = Private(con_key, secr_key)
-        self.pblc_api = Public()
+        # self.pri_api = Private(con_key, secr_key)
+        self.con_key = con_key
+        self.secr_key = secr_key
         self.order_id_dict = {"buy": [], "sell": []}
 
     
@@ -19,7 +20,9 @@ class Bithumb():
         """
         try:
             pars_data = {}
-            resp = self.pblc_api.Ticker(order_currency=order_currency, payment_currency=payment_currency)
+            resp = Public().Ticker(
+                                order_currency=order_currency, 
+                                payment_currency=payment_currency)
 
             if 'message' in resp:
                 return resp["message"]
@@ -55,7 +58,9 @@ class Bithumb():
         * return type: dict
         """
         try:
-            resp = self.pblc_api.Ticker(order_currency="ALL", payment_currency=payment_currency)
+            resp = Public().Ticker(
+                                order_currency="ALL", 
+                                payment_currency=payment_currency)
             resp = resp['data']
             del resp['date']
             return resp.keys()
@@ -73,10 +78,14 @@ class Bithumb():
         * return type: dict
         """
         try:
-            resp = self.pri_api.Place(units=units, price=price, type=type, order_currency=order_currency, payment_currency=payment_currency)
+            resp = Private(self.con_key, self.secr_key).Place(
+                                                            units=units, 
+                                                            price=price, 
+                                                            type=type, 
+                                                            order_currency=order_currency, 
+                                                            payment_currency=payment_currency)
             if 'message' in resp:
                 return resp["message"]
-            self.order_id_list.append(resp["order_id"])
             return {order_currency: {"order_id": resp['order_id']}}
         except  Exception as e:
             return e
@@ -92,7 +101,12 @@ class Bithumb():
         * return type: dict
         """
         try:
-            resp = self.pri_api.Place(units=units, price=price, type=type, order_currency=order_currency, payment_currency=payment_currency)
+            resp = Private(self.con_key, self.secr_key).Place(
+                                                            units=units, 
+                                                            price=price, 
+                                                            type=type, 
+                                                            order_currency=order_currency, 
+                                                            payment_currency=payment_currency)
             if 'message' in resp:
                 return resp["message"]
             return {order_currency: {"order_id": resp['order_id']}}
@@ -110,7 +124,11 @@ class Bithumb():
         * return type: dict
         """
         try:
-            resp = self.pri_api.Cancel(type=type, order_id=order_id, order_currency=order_currency, payment_currency=payment_currency)
+            resp = Private(self.con_key, self.secr_key).Cancel(
+                                                            type=type, 
+                                                            order_id=order_id, 
+                                                            order_currency=order_currency, 
+                                                            payment_currency=payment_currency)
             if "message" in resp:
                 return resp['message']
             return resp
@@ -125,7 +143,9 @@ class Bithumb():
         * return type: list
         """
         try:
-            resp = self.pri_api.Order(type=None, order_id=None)
+            resp = Private(self.con_key, self.secr_key).Order(
+                                                            type=None, 
+                                                            order_id=None)
             if "message" in resp:
                 return resp['message']
             resp = resp['data']
@@ -135,6 +155,28 @@ class Bithumb():
                 elif res['type'] == SELL:
                     self.order_id_dict["sell"].append(res['order_id'])
             return self.order_id_dict
+        except Exception as e:
+            return e
+
+    def CancelAll(self):
+        """
+        Cancel all of the order
+
+        * Param order_id_dict: return value of GetOrderId() method
+        * return type: str(message)
+        """
+        try:
+            resp = self.GetOrderID()
+            for res in resp:
+                for orderid in resp[res]:
+                    if res == "buy":
+                        state_code = self.OrderCancel(type=BUY, order_id=orderid)['status']
+                    elif res == "sell":
+                        state_code = self.OrderCancel(type=SELL, order_id=orderid)['status']
+                    if state_code != "0000": 
+                        return state_code
+                    print("{} was canceled".format(orderid))
+            return 0
         except Exception as e:
             return e
 
@@ -152,7 +194,8 @@ if __name__ == "__main__":
     # print(test.OrderSell(units=1, price=10800))
     # print(test.GetOrderID())
     # print(test.OrderCancel(type=BUY, order_id=))
-    print(test.GetOrderID())
+    print(test.CancelAll())
+    
 
 
 
