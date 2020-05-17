@@ -340,7 +340,31 @@ class Private():
         except Exception as e:
             return e
     
-    
+    def Transaction(self, offset=0, count=20, searchGb=0, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Get the list of completed trade
+        docs: https://apidocs.bithumb.com/docs/transactions
+
+        * Param count: 1~50 (the number of list)
+        * Param searchGb: 0 : 전체, 1 : 매수 완료, 2 : 매도 완료, 3 : 출금 중 4 : 입금, 5 : 출금, 9 : KRW 입금 중
+        * Param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * Param payment_currency: KRW
+        * return type: dict
+        """
+        try:
+            rgParms = {
+                        "offset": offset,
+                        "count": count,
+                        "searchGb": searchGb,
+                        "order_currency": order_currency,
+                        "payment_currency": payment_currency
+            }
+            req = self.xcoin.xcoinApiCall(TRANSPATH, rgParms)
+            return req
+        except Exception as e:
+            return e
+        pass
+
     def Cancel(self, type, order_id, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
         """
         Cancel the watting order
@@ -365,7 +389,7 @@ class Private():
             return e
     
     
-    def MarketBuy(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+    def MarketPriceBuy(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
         """
         Buy the coin as market price
         docs: https://apidocs.bithumb.com/docs/market_buy
@@ -387,7 +411,7 @@ class Private():
             return e
 
     
-    def MarketSell(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+    def MarketPriceSell(self, units, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
         """
         Sell the coin as market price
         docs: https://apidocs.bithumb.com/docs/market_sell
@@ -423,9 +447,11 @@ if __name__ == "__main__":
     # print(pri_test.Order(type=SELL,order_id="C0111000000012844333")) 
     # print(pri_test.OrderDetail(order_id="C0111000000012849231"))
     # print(pri_test.Cancel(type=SELL, order_id="C0111000000012844333"))
-    # print(pri_test.MarketSell(units=0.8))
-    # print(pri_test.MarketBuy(units=0.8))
-    
+    # print(pri_test.MarketPriceSell(units=0.8))
+    # print(pri_test.MarketPrice
+    # Buy(units=0.8))
+    # print(pri_test.Transaction())
+
     # print(Path().KeyPath())
     
     # print(Public().Ticker("BTG"))
