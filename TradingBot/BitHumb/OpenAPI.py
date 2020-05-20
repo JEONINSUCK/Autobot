@@ -6,6 +6,7 @@ from xcoin_api_client import *
 
 DEFAULTCOIN = "BTG"
 DEFAULTPAYMENT = "KRW"
+DEFAULTINTERVAL = "1m"
 DEFAULTCOUNT = 100
 BUY = "bid"
 SELL = "ask"
@@ -24,6 +25,7 @@ PLACEPATH = "/trade/place"
 CANCELPATH = "/trade/cancel"
 MARKETBUYPATH = "/trade/market_buy"
 MARKETSELLPATH = "/trade/market_sell"
+CANDLESTICKPATH = "/public/candlestick"
 
 
 class Public():
@@ -105,9 +107,9 @@ class Public():
         try:
             url = DEFAULTPATH + ORDERBOOKPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
             req = requests.get(url)
-            return req.json()['data']
+            return req.json()
         except Exception as e:
-            return -1
+            return e
 
     def TransHistory(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT, count=10):
         """
@@ -149,9 +151,9 @@ class Public():
         try:
             url = DEFAULTPATH + TRANSHISPATH + "/{0}_{1}?count={2}".format(order_currency, payment_currency,count)
             req = requests.get(url)
-            return req.json()['data']
+            return req.json()
         except Exception as e:
-            return -1
+            return e
 
     def BTCI(self):
         """
@@ -182,9 +184,26 @@ class Public():
         try:
             url = DEFAULTTPATH + BTCIPATH
             req = requests.get(url)
-            return req.json()['data']
+            return req.json()
         except Exception as e:
-            return -1
+            return e
+
+    def CandleStick(self, chart_instervals=DEFAULTINTERVAL, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT):
+        """
+        Get the candle stick
+        docs: https://apidocs.bithumb.com/docs/candlestick
+
+        * Param chart_intervals: 1m(dafault), 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
+        * param order_currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * param payment_currency: KRW
+        * return type: dict
+        """
+        try:
+            url = DEFAULTPATH + CANDLESTICKPATH + "/{0}_{1}/{2}".format(order_currency, payment_currency,chart_instervals)
+            req = requests.get(url)
+            return req.json()
+        except Exception as e:
+            return e
 
 class Path():
     def __init__(self):
@@ -458,4 +477,5 @@ if __name__ == "__main__":
     # print(Public().OrderBook("BTG"))
     # print(Public().TransHistory("BTC"))
     # print(Public().BTCI())
+    print(Public().CandleStick())
     
