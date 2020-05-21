@@ -111,7 +111,7 @@ class Public():
         except Exception as e:
             return e
 
-    def TransHistory(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT, count=10):
+    def TransHistory(self, order_currency=DEFAULTCOIN, payment_currency=DEFAULTPAYMENT, count=20):
         """
         Get coin transaction history
         docs: https://apidocs.bithumb.com/docs/transaction_history

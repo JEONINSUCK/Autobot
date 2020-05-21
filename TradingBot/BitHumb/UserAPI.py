@@ -1,6 +1,8 @@
 # from TradingBot.BitHumb.OpenAPI import *
 from OpenAPI import *
-import datetime
+from datetime import datetime
+from pandas import DataFrame
+from pandas import to_datetime
 
 class Bithumb():
     def __init__(self, con_key, secr_key):
@@ -377,6 +379,57 @@ class Bithumb():
         except Exception as e:
             return e
 
+    def GetCandleStick(self, chart_instervals="1m", order_currency="BTG", payment_currency="KRW"):
+        """
+        Get the candle stick
+
+        * Param chart_instervals: 1m(dafault), 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
+        * param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * param payment_currency: KRW(Default)
+        * return type: Dataframe
+        * return value: columns[time, open, close, high, low, volume], index[time]
+        """
+        try:
+            pars_data = {}
+            resp = Public().CandleStick(
+                                        chart_instervals=chart_instervals,
+                                        order_currency=order_currency,
+                                        payment_currency=payment_currency
+            )
+            if 'message' in resp:
+                return resp['message']
+
+            resp = resp['data']
+            df = DataFrame(data=resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
+            df = df.set_index('time')
+            df.index = to_datetime(df.index, unit='ms')
+            return df.astype(float)
+        except Exception as e:
+            return e
+
+    def GetVolumes(self, count=20 ,order_currency="BTG", payment_currency="KRW"):
+        """
+        Get current transaction history
+
+        * Param count: Get the count
+        return type: Dataframe
+        return value: columns[type, units_traded, price, total], index[transaction_date]
+        """
+        try:
+            resp = Public().TransHistory(
+                                        count=count,
+                                        order_currency=order_currency,
+                                        payment_currency=payment_currency
+            )
+            if 'message' in resp:
+                return resp['message']
+
+            resp = resp['data']
+            df = DataFrame(data=resp)
+            df = df.set_index('transaction_date')
+            return df
+        except Exception as e:
+            return e
 
 if __name__ == "__main__":
     start = time.time()
@@ -399,6 +452,16 @@ if __name__ == "__main__":
     # print(test.GetTransHis())
     # print(test.MarketBuy(units=0.1))
     # print(test.MarketSell(units=0.6))
+    # print(test.GetCandleStick())
+    # print(test.GetCandleStick())
+    print(test.GetVolumes())
+
+    # a = datetime.fromtimestamp(time.time())
+    
+    # print(time.time() * 1000)
+    # b = round(time.time() * 1000)
+    # print(datetime.fromtimestamp(b/1000))
+    # # print(datetime.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("\ntime: {} 초".format(time.time() - start))
     # print(time.gmtime(time.time()))
