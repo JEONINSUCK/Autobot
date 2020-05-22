@@ -407,7 +407,7 @@ class Bithumb():
         except Exception as e:
             return e
 
-    def GetVolumes(self, count=20 ,order_currency="BTG", payment_currency="KRW"):
+    def GetVolumes(self, count=20, order_currency="BTG", payment_currency="KRW"):
         """
         Get current transaction history
 
@@ -427,6 +427,37 @@ class Bithumb():
             resp = resp['data']
             df = DataFrame(data=resp)
             df = df.set_index('transaction_date')
+            return df
+        except Exception as e:
+            return e
+
+    def GetMAL(self, number, chart_instervals="1m", order_currency="BTG", payment_currency="KRW"):
+        """
+        Get the MAL(Moving Everage Line)
+
+        * param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * param payment_currency: KRW(Default)
+        * return type: Dataframe
+        * return value: 
+        """
+        try:
+            MAL_list = []
+            resp = self.GetCandleStick(
+                                    chart_instervals=chart_instervals,
+                                    order_currency=order_currency,
+                                    payment_currency=payment_currency
+            )
+
+            index = resp.index[number-1::]
+            for i in range(len(resp)-number):
+                summ = 0
+                for j in range(number):
+                    summ += resp.iloc[i+j].loc['close']
+                MAL = summ / number
+                MAL_list.append(MAL)
+                # print("{} -> {}".format(index[i],MAL))
+
+            df = DataFrame(data=MAL_list, index=index[:len(MAL_list):], columns=['MA'])
             return df
         except Exception as e:
             return e
@@ -453,8 +484,9 @@ if __name__ == "__main__":
     # print(test.MarketBuy(units=0.1))
     # print(test.MarketSell(units=0.6))
     # print(test.GetCandleStick())
-    # print(test.GetCandleStick())
-    print(test.GetVolumes())
+    # print(test.GetVolumes())
+    print(test.GetMAL(number=5))
+    
 
     # a = datetime.fromtimestamp(time.time())
     
