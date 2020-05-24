@@ -11,7 +11,7 @@ class Bithumb():
         self.secr_key = secr_key
         self.order_id_dict = {"buy": [], "sell": []}
 
-    
+
     def GetPrice(self, order_currency="BTG", payment_currency="KRW"):
         """
         Get the coin price
@@ -462,6 +462,29 @@ class Bithumb():
         except Exception as e:
             return e
 
+    def NowCandleStick(self, order_currency="BTG", payment_currency="KRW"):
+        """
+        Get the current candle stick
+
+        """
+        try:
+            rm_keys = ['units_traded_24H', 'acc_trade_value_24H', 'fluctate_24H', 'fluctate_rate_24H', 'prev_closing_price']
+            resp = Public().Ticker(
+                                order_currency=order_currency, 
+                                payment_currency=payment_currency)
+            if 'message' in resp:
+                return resp["message"]
+        
+            resp = resp['data']
+            for rm_key in rm_keys: del resp[rm_key]
+            df = DataFrame(data=[resp])
+            df = df.set_index('date')
+            df.index = to_datetime(df.index, unit="ms")
+            return df.astype(float)
+        except Exception as e:
+            return e
+
+
 if __name__ == "__main__":
     start = time.time()
     with open(Path().KeyPath(), "r") as f:
@@ -485,7 +508,8 @@ if __name__ == "__main__":
     # print(test.MarketSell(units=0.6))
     # print(test.GetCandleStick())
     # print(test.GetVolumes())
-    print(test.GetMAL(number=5))
+    # print(test.GetMAL(number=5))
+    print(test.NowCandleStick())
     
 
     # a = datetime.fromtimestamp(time.time())
