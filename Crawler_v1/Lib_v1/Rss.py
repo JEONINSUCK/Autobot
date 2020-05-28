@@ -2,26 +2,15 @@
 # -*- coding: utf8 -*-
 # auth : hdh0926@naver.com
 
-import datetime
-import time
-import feedparser
+import datetime, feedparser, time
 from pprint import pprint
 from Protocol import news, news_collection
 from threading import Thread
-import json, sys
-
-# start schedule
-# 스케줄 종류에는 여러가지가 있는데 대표적으로 BlockingScheduler, BackgroundScheduler 입니다
-# BlockingScheduler 는 단일수행에, BackgroundScheduler은 다수 수행에 사용됩니다.
-# 여기서는 BackgroundScheduler 를 사용하겠습니다.
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.base import JobLookupError
-import hashlib, queue
+import json, sys,hashlib, queue
 
 class RssWatcher(object):
   # define
   debug = False
-  sched = BackgroundScheduler()
   jobs_list = {}
   q = queue.Queue()
 
@@ -35,19 +24,19 @@ class RssWatcher(object):
       last = time.mktime(datetime.datetime.strptime(updated_at, '%Y-%m-%d %H:%M:%S').timetuple())
       return last
     except Exception as e:
-      print(e)
+      print("[LastParser][ERROR] ", e)
       return 0
 
-  def run(self, target, last, key):
-    start = time.time()
+  def NewsParser(self, target, last, key):
     rss = feedparser.parse(target)
-    last_time = last.strip()
-    print("insert", last_time)
-    if not last_time:
-      last_time = 0
-    if self.jobs_list[key]["last"]:
-      last_time = self.jobs_list[key]["last"]
-      print("update", last_time, key)
+    last_time = last
+    try:
+      if self.jobs_list[key]["last"] != 0:
+        last_time = self.jobs_list[key]["last"]
+      print("[INFO][NewsParser_1] ", last_time, "is_last")
+    except Exception as e:
+      print("[ERROR][NewsParser_1] : ", e)
+      pass
 
     # start parser
     newsList = []
@@ -62,23 +51,27 @@ class RssWatcher(object):
         for row in rss["entries"]:
           _news = news( title = row["title"], content = ''.join(row["summary"].split("\n")), published = self.LastParser(row) )
           newsList.append(_news)
-          a = self.LastParser(row)
-          print(a, "asdasda")
-          if last_time > a:
+          timestamp = self.LastParser(row)
+          if last_time > timestamp:
             continue
       # last action
-      print(newsList[len(newsList) - 1].published)
-      self.jobs_list[key]["last"] = newsList[len(newsList) - 1].published
-      print("[+] Last : {0}, Count : {1}".format(self.jobs_list[key]["last"], str(len(newsList))))
-      print("[+] Runtime : {0}".format(str(time.time() - start)))
-      # pprint(self.jobs_list[key])
-      self.q.put({ "newsList" : newsList, "target" : target, "key" : key })
+      last_news = newsList[len(newsList) - 1]
+      if len(newsList) > 0:
+        self.jobs_list[key]["last"] = last_news.published
+
+      # send to result
+      self.q.put({ "newsList" : newsList, "target" : target, "key" : key, "last" : time.time() })
+
+      # logging
+      print("[INFO][NewsParser_2] Last : {0}, Count : {1}, key : {2}".format(self.jobs_list[key]["last"], str(len(newsList)), key))
+      print("[INFO][NewsParser_2] Runtime : {0}".format(str(time.time() - start)))
     except Exception as e:
-      print(e)
+      print("[ERROR][newsParser_2] ", e)
   
-  def runner(self):
+  def run(self):
     try:
       # read file
+      config = ""
       with open('config.dev.json') as json_file:
         config = json.load(json_file)
 
@@ -87,42 +80,40 @@ class RssWatcher(object):
         print("[ERROR] No have value on config file, "+config)
         sys.exit()
       
-      # start schedule on background
-      self.sched.start()
-
       # read data file
       r = open("data/rss_kr.txt", mode='r', encoding='utf-8')
       for x in r.readlines():
         if not x.startswith("http"):
-          if self.debug:
-            print("[DEBUG][PASS] "+x)
+          print("[INFO][PASS] "+x)
           continue
         else:
           # add schedule
           target, interval, last = x.split(",")
+
+          # defined data
           key = hashlib.md5(target.encode('utf-8')).hexdigest()
-          params = { "target" : target, "last" : last, "key" : key }
-          self.sched.add_job(self.run, 'interval', seconds=int(interval), id=key, kwargs=params)
-          self.jobs_list[key] = params
-          print(self.jobs_list[key])
+          if not last.replace("\n", "").strip():
+            last = 0
+          self.jobs_list[key] = { "target" : target, "last" : last, "key" : key, "interval" : interval }
+
+          # just start once
+          Thread(target=self.NewsParser, args=(target, last, key)).start()
 
           # logging
-          if self.debug:
-            print("[INFO][RUN] "+x)
-      # start wait
-      # self.th_start()
-      # self.th_wait()
+          print("[INFO][RUN] "+x)
+            
     except Exception as e:
-      print("[ERROR] unable to start thread", e)
-    while self.sched.running:
-      print("run main")
-      if not self.q.empty:
-        pprint(self.q.get())
+      print("[RUN][ERROR] ", e)
+
+    while 1:
+      if not self.q.empty():
+        pass
+        # pprint(self.q.get())
       time.sleep(1)
       pass
 
 if __name__ == "__main__":
     start = time.time()
     r_service = RssWatcher(debug = True)
-    r_service.runner()
+    r_service.run()
     print("time: {0}".format(time.time() - start))
