@@ -6,7 +6,12 @@ import datetime, feedparser, time
 from pprint import pprint
 from Protocol import news, news_collection
 from threading import Thread
+<<<<<<< HEAD
 import json, sys,hashlib, queue
+=======
+import json, sys
+import hashlib, queue
+>>>>>>> a4a3c708c89b2c113debac99a4dd32b6e3c5303a
 
 class RssWatcher(object):
   # define
@@ -29,14 +34,13 @@ class RssWatcher(object):
 
   def NewsParser(self, target, last, key):
     rss = feedparser.parse(target)
-    last_time = last
-    try:
-      if self.jobs_list[key]["last"] != 0:
-        last_time = self.jobs_list[key]["last"]
-      print("[INFO][NewsParser_1] ", last_time, "is_last")
-    except Exception as e:
-      print("[ERROR][NewsParser_1] : ", e)
-      pass
+    last_time = last.strip()
+
+    if len(last_time) < 0:
+      last_time = 0
+    if self.jobs_list[key]["last"]:
+      last_time = self.jobs_list[key]["last"]
+      print("update", last_time, key)
 
     # start parser
     newsList = []
@@ -113,7 +117,9 @@ class RssWatcher(object):
       pass
 
 if __name__ == "__main__":
-    start = time.time()
-    r_service = RssWatcher(debug = True)
-    r_service.run()
-    print("time: {0}".format(time.time() - start))
+  # get target with
+  start = time.time()
+  r_service = RssWatcher(debug = True)
+  r_service.runner()
+  print("time: {0}".format(time.time() - start))
+

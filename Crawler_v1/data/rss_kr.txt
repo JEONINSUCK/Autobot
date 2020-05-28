@@ -1,7 +1,12 @@
-# RSS URL, interval(seconds), last
-# https://kr.investing.com/crypto/xrp/news,10,
-# https://kr.investing.com/crypto/xrp/analysis,10,
-http://www.coindeskkorea.com/rss/S1N8.xml,10,
-http://www.coindeskkorea.com/rss/allArticle.xml,10,
-http://coinreaders.com/rss/rss_news.php,10,
+# RSS URL, interval(seconds)
+http://www.coindeskkorea.com/rss/allArticle.xml
+# http://www.coindeskkorea.com/rss/S1N8.xml
+# https://kr.investing.com/crypto/xrp/news
+# https://kr.investing.com/crypto/xrp/analysis
+# https://www.coindeskkorea.com
+# http://m.coinreaders.com/b.html?sc=sc10
+# http://m.coinreaders.com/b.html?sc=sc6
+
+
+
 # http://newssearch.naver.com/search.naver?where=rss&query=%NAME%&field=0&nx_search_query=&nx_and_query=&nx_sub_query=&nx_search_hlquery=&is_dts=0`
