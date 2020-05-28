@@ -9,13 +9,6 @@ from pprint import pprint
 from Protocol import news, news_collection
 from threading import Thread
 import json, sys
-
-# start schedule
-# 스케줄 종류에는 여러가지가 있는데 대표적으로 BlockingScheduler, BackgroundScheduler 입니다
-# BlockingScheduler 는 단일수행에, BackgroundScheduler은 다수 수행에 사용됩니다.
-# 여기서는 BackgroundScheduler 를 사용하겠습니다.
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.base import JobLookupError
 import hashlib, queue
 
 class RssWatcher(object):
@@ -42,8 +35,8 @@ class RssWatcher(object):
     start = time.time()
     rss = feedparser.parse(target)
     last_time = last.strip()
-    print("insert", last_time)
-    if not last_time:
+
+    if len(last_time) < 0:
       last_time = 0
     if self.jobs_list[key]["last"]:
       last_time = self.jobs_list[key]["last"]
@@ -122,7 +115,8 @@ class RssWatcher(object):
       pass
 
 if __name__ == "__main__":
-    start = time.time()
-    r_service = RssWatcher(debug = True)
-    r_service.runner()
-    print("time: {0}".format(time.time() - start))
+  # get target with
+  start = time.time()
+  r_service = RssWatcher(debug = True)
+  r_service.runner()
+  print("time: {0}".format(time.time() - start))

@@ -1,11 +1,11 @@
 # RSS URL, interval(seconds)
-http://www.coindeskkorea.com/rss/allArticle.xml,10,
-# http://www.coindeskkorea.com/rss/S1N8.xml,10,
-# https://kr.investing.com/crypto/xrp/news,10,
-# https://kr.investing.com/crypto/xrp/analysis,10,
-# https://www.coindeskkorea.com,10,
-# http://m.coinreaders.com/b.html?sc=sc10,10,
-# http://m.coinreaders.com/b.html?sc=sc6,10,
+http://www.coindeskkorea.com/rss/allArticle.xml
+# http://www.coindeskkorea.com/rss/S1N8.xml
+# https://kr.investing.com/crypto/xrp/news
+# https://kr.investing.com/crypto/xrp/analysis
+# https://www.coindeskkorea.com
+# http://m.coinreaders.com/b.html?sc=sc10
+# http://m.coinreaders.com/b.html?sc=sc6
 
 
 
