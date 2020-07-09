@@ -2,6 +2,9 @@ import requests
 import time
 import os
 import pybithumb
+import websockets
+import asyncio
+
 from xcoin_api_client import *
 
 DEFAULTCOIN = "BTG"
@@ -12,6 +15,8 @@ BUY = "bid"
 SELL = "ask"
 
 DEFAULTPATH = "https://api.bithumb.com"
+WEBSOCKPATH = "wss://pubwss.bithumb.com/pub/ws"
+
 TICKERPATH = "/public/ticker"
 ORDERBOOKPATH = "/public/orderbook"
 TRANSHISPATH = "/public/transaction_history"
@@ -451,6 +456,49 @@ class Private():
         except Exception as e:
             return e
 
+class LiveInfo():
+    def __init__(self, debug=0):
+        self.debug = debug
+        self.candle_run = 1
+        self.trans_run = 1
+
+
+    def CandleBuf(self, data):
+        self.candle_data = data
+
+    """
+    Get the live candle stick info
+
+    * Param 
+    * return value: -1 = connection error
+                    -2 = parameters are not correct
+    """
+    def LiveCandle(self, symbols, tickTypes):
+        param = {}
+        async def opserver():
+            async with websockets.connect(WEBSOCKPATH, ping_interval=None) as ws:
+                starting_msg = json.loads(await ws.recv())
+                if starting_msg['status'] != "0000":
+                    return -1
+                param.update({  "type": "ticker",
+                                "symbols": [symbols],
+                                "tickTypes": [tickTypes]
+                                })
+                await ws.send(str(param))
+                confirm_msg = json.loads(await ws.recv())
+                if confirm_msg['status'] != "0000":
+                    return -2
+
+                while self.candle_run:
+                    data = json.loads(await ws.recv())
+                    self.CandleBuf(data)
+                    print(data)
+                
+        asyncio.get_event_loop().run_until_complete(opserver())
+        return 0
+
+    def LiveTransaction(self):
+        pass
 if __name__ == "__main__":
     start = time.time()
 
@@ -477,5 +525,7 @@ if __name__ == "__main__":
     # print(Public().OrderBook("BTG"))
     # print(Public().TransHistory("BTC"))
     # print(Public().BTCI())
-    print(Public().CandleStick())
+    # print(Public().CandleStick())
+    
+    print(LiveInfo().LiveCandle(symbols="BTC_KRW", tickTypes="30M"))
     
