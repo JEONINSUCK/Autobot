@@ -11,6 +11,8 @@ class Bithumb():
         self.secr_key = secr_key
         self.order_id_dict = {"buy": [], "sell": []}
 
+        self.info = LiveInfo()
+
 
     def GetPrice(self, order_currency="BTG", payment_currency="KRW"):
         """
@@ -41,7 +43,7 @@ class Bithumb():
                                     {key: {
                                     "시가": float(resp[key]['opening_price']),
                                     "현재가": float(resp[key]['closing_price']),
-                                    "시간": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                                    "시간": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                                     }})
                 return pars_data
             else:
@@ -49,7 +51,7 @@ class Bithumb():
                                 {order_currency: {
                                 "시가": float(resp['opening_price']),
                                 "현재가": float(resp['closing_price']),
-                                "시간": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                                "시간": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                                 }})
                 return pars_data
         except Exception as e:
@@ -218,7 +220,15 @@ class Bithumb():
         * Param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         * Param payment_currency: KRW(Default)
         * return type: dict
-        * return value: 
+        * return value: 'transfer_date':{
+                                            "거래구분": value,
+                                            "거래코인": value,
+                                            "거래수량": value,
+                                            "1개당금액": value,
+                                            "거래금액": value,
+                                            "거래수수료": value,
+                                            "잔여수량": value,
+                                            "잔여금액": value 
         """
         try:
             pars_data = {order_currency: {}}
@@ -438,7 +448,7 @@ class Bithumb():
         * param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         * param payment_currency: KRW(Default)
         * return type: Dataframe
-        * return value: 
+        * return value:
         """
         try:
             MAL_list = []
@@ -462,27 +472,75 @@ class Bithumb():
         except Exception as e:
             return e
 
-    def NowCandleStick(self, order_currency="BTG", payment_currency="KRW"):
+    def NowCandleStick(self):
         """
         Get the current candle stick
 
+        * param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * return type: Dataframe
+        * return value: columns['value', 'volume', 'sellVolume', 'buyVolume', 'prevClosePrice', 'chgRate', 'chgAmt', 'volumePower']
+                        index ['data']
         """
         try:
-            rm_keys = ['units_traded_24H', 'acc_trade_value_24H', 'fluctate_24H', 'fluctate_rate_24H', 'prev_closing_price']
-            resp = Public().Ticker(
-                                order_currency=order_currency, 
-                                payment_currency=payment_currency)
-            if 'message' in resp:
-                return resp["message"]
-        
-            resp = resp['data']
-            for rm_key in rm_keys: del resp[rm_key]
-            df = DataFrame(data=[resp])
-            df = df.set_index('date')
-            df.index = to_datetime(df.index, unit="ms")
-            return df.astype(float)
+            rm_keys = ['value', 'volume', 'sellVolume', 'buyVolume', 'prevClosePrice', 'chgRate', 'chgAmt', 'volumePower']
+            while True:
+                resp = self.info.GetCandleData()
+                if resp == -1:
+                    return resp
+                if resp == -2: 
+                    continue
+                resp = resp['content']
+                for rm_key in rm_keys: del resp[rm_key]
+                df = DataFrame(data=[resp])
+                df = df.set_index('date')
+                return df
         except Exception as e:
             return e
+    
+    def NowTransaction(self):
+        """
+        Get the current transaction
+
+        * param order_currency: BTG(Default)/BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        * return type: Dataframe
+        * return value: columns['buySellGb', 'contPrice', 'contQty', 'contAmt', 'symbol']
+                        index ['contDtm']
+        """
+        try:
+            while True:
+                resp = self.info.GetTransData()
+                if resp == -1:
+                    return resp
+                if resp == -2: 
+                    continue
+                resp = resp['content']['list']
+                for res in resp: del res['updn']
+                df = DataFrame(data=resp)
+                df = df.set_index('contDtm')
+                return df
+        except Exception as e:
+            return e
+    
+    def TransObsStart(self, order_currency="BTC"):
+        """
+        Start Transaction observer thread
+        """
+        try:
+            th =  threading.Thread(target=self.info.TransThread, args=(order_currency+"_KRW",))
+            th.start()
+        except Exception as e:
+            return e
+
+    def CandleObsStart(self, tickTypes, order_currency="BTC"):
+        """
+        Start candlestick observer thread
+        """
+        try:
+            th =  threading.Thread(target=self.info.CandleThread, args=(order_currency+"_KRW",tickTypes))
+            th.start()
+        except Exception as e:
+            return e
+    
 
 
 if __name__ == "__main__":
@@ -509,8 +567,14 @@ if __name__ == "__main__":
     # print(test.GetCandleStick())
     # print(test.GetVolumes())
     # print(test.GetMAL(number=5))
-    print(test.NowCandleStick())
+
+    # test.CandleObsStart(order_currency="BTC", tickTypes="30M")
+    # while True:
+    #     print(test.NowCandleStick())
     
+    test.TransObsStart(order_currency="BTC")
+    while True:
+        print(test.NowTransaction())
 
     # a = datetime.fromtimestamp(time.time())
     
