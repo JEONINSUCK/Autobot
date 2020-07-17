@@ -166,7 +166,7 @@ class Public():
     def BTCI(self):
         """
         Get Bithumb index(BTMI,BTAI)
-        : It is an index that shows the overall flow of the market.
+        : It is an index that shoself.ws the overall flow of the market.
         docs: https://apidocs.bithumb.com/docs/btci
 
         * return type: dict
@@ -465,9 +465,8 @@ class LiveInfo():
         self.debug = debug
         self.candle_run = 1
         self.trans_run = 1
-        self.candle_loop_is_run = 0
-        self.trans_loop_is_run = 0
-        self.candle_data = ""
+        self.candle_loop = 0
+        self.trans_loop = 0
         self.candle_buff = queue.Queue()
         self.trans_buff = queue.Queue()
 
@@ -479,7 +478,7 @@ class LiveInfo():
     """
     def GetCandleData(self):
         try:
-            if self.candle_loop_is_run == 0:
+            if self.candle_run == 0:
                 return -1
             if self.candle_buff.empty():
                 return -2
@@ -495,7 +494,7 @@ class LiveInfo():
     """
     def GetTransData(self):
         try:
-            if self.trans_loop_is_run == 0:
+            if self.trans_run == 0:
                 return -1
             if self.trans_buff.empty():
                 return -2
@@ -508,12 +507,24 @@ class LiveInfo():
     """
     def CandleThread(self, symbols, tickTypes):
         try:
-            self.candle_loop_is_run = 1
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.LiveCandle(symbols=symbols, tickTypes=tickTypes))
-            loop.run_forever()
-            self.candle_loop_is_run = 0
+            self.candle_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.candle_loop)
+            self.candle_loop.run_until_complete(self.LiveCandle(symbols=symbols, tickTypes=tickTypes))
+        except Exception as e:
+            self.candle_loop.stop()
+            self.candle_loop.close()
+            return e
+
+    """
+    Stop the candle thread
+    """
+    def CandleThreadStop(self):
+        try:
+            if self.candle_loop != 0:
+                self.candle_run = 0
+                self.candle_loop.run_forever()
+                self.candle_loop.stop()
+                self.candle_loop.close()
         except Exception as e:
             return e
 
@@ -522,12 +533,21 @@ class LiveInfo():
     """
     def TransThread(self, symbols):
         try:
-            self.trans_loop_is_run = 1
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop) 
-            loop.run_until_complete(self.LiveTransaction(symbols=symbols))
-            loop.run_forever()
-            self.trans_loop_is_run = 0
+            self.trans_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.trans_loop) 
+            self.trans_loop.run_until_complete(self.LiveTransaction(symbols=symbols))
+        except Exception as e:
+            self.trans_loop.stop()
+            self.trans_loop.close()
+            return e
+
+    def TransThreadStop(self):
+        try:
+            if self.trans_loop != 0:
+                self.trans_run = 0
+                self.trans_loop.forever()
+                self.trans_loop.stop()
+                self.trans_loop.close()
         except Exception as e:
             return e
 
@@ -541,21 +561,21 @@ class LiveInfo():
     async def LiveCandle(self, symbols, tickTypes):
         try:
             param = {}
-            async with websockets.connect(WEBSOCKPATH, ping_interval=None) as ws:
-                starting_msg = json.loads(await ws.recv())
+            async with websockets.connect(WEBSOCKPATH, ping_interval=None) as self.ws:
+                starting_msg = json.loads(await self.ws.recv())
                 if starting_msg['status'] != "0000":
                     return -1
                 param.update({  "type": "ticker",
                                 "symbols": [symbols],
                                 "tickTypes": [tickTypes]
                                 })
-                await ws.send(str(param))
-                confirm_msg = json.loads(await ws.recv())
+                await self.ws.send(str(param))
+                confirm_msg = json.loads(await self.ws.recv())
                 if confirm_msg['status'] != "0000":
                     return -2
 
                 while self.candle_run:
-                    data = json.loads(await ws.recv())
+                    data = json.loads(await self.ws.recv())
                     self.candle_buff.put(data)
         except queue.Full:
             return -3
@@ -572,20 +592,20 @@ class LiveInfo():
     async def LiveTransaction(self, symbols):
         try:
             param = {}
-            async with websockets.connect(WEBSOCKPATH, ping_interval=None) as ws:
-                starting_msg = json.loads(await ws.recv())
+            async with websockets.connect(WEBSOCKPATH, ping_interval=None) as self.ws:
+                starting_msg = json.loads(await self.ws.recv())
                 if starting_msg['status'] != "0000":
                     return -1
                 param.update({  "type": "transaction",
                                 "symbols": [symbols]
                                 })
-                await ws.send(str(param))
-                confirm_msg = json.loads(await ws.recv())
+                await self.ws.send(str(param))
+                confirm_msg = json.loads(await self.ws.recv())
                 if confirm_msg['status'] != "0000":
                     return -2
 
-                while self.candle_run:
-                    data = json.loads(await ws.recv())
+                while self.trans_run:
+                    data = json.loads(await self.ws.recv())
                     self.trans_buff.put(data)
         except queue.Full:
             return -3
@@ -624,6 +644,7 @@ if __name__ == "__main__":
     # info = LiveInfo()
     # th = threading.Thread(target=info.CandleThread, args=("BTC_KRW","30M"))
     # th.start()
+    
     # while True:
     #     data = info.GetCandleData()
     #     if data == -1:
@@ -631,10 +652,11 @@ if __name__ == "__main__":
     #         break
     #     if data == -2: continue
     #     print(data)
+    #     info.CandleThreadStop()
 
     # info = LiveInfo()
-    # th =  threading.Thread(target=info.TransThread, args=("BTC_KRW",))
-    # th.start()
+    # th1 =  threading.Thread(target=info.TransThread, args=("BTC_KRW",))
+    # th1.start()
     # while True:
     #     data = info.GetTransData()
     #     if data == -1:
@@ -642,7 +664,7 @@ if __name__ == "__main__":
     #         break
     #     if data == -2: continue
     #     print(data)
-
+    #     info.TransThreadStop()
     
 
 
