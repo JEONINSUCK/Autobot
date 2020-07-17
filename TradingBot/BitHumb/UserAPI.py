@@ -526,8 +526,18 @@ class Bithumb():
         Start Transaction observer thread
         """
         try:
+            self.info.trans_run = 1
             th =  threading.Thread(target=self.info.TransThread, args=(order_currency+"_KRW",))
             th.start()
+        except Exception as e:
+            return e
+    
+    def TransObsStop(self):
+        """
+        Stope Transaction observer thread
+        """
+        try:
+            self.info.TransThreadStop()
         except Exception as e:
             return e
 
@@ -536,12 +546,20 @@ class Bithumb():
         Start candlestick observer thread
         """
         try:
+            self.info.candle_run = 1
             th =  threading.Thread(target=self.info.CandleThread, args=(order_currency+"_KRW",tickTypes))
             th.start()
         except Exception as e:
             return e
     
-
+    def CandleObsStop(self):
+        """
+        Stope candlestick observer thread
+        """
+        try:
+            self.info.CandleThreadStop()
+        except Exception as e:
+            return e
 
 if __name__ == "__main__":
     start = time.time()
@@ -569,12 +587,23 @@ if __name__ == "__main__":
     # print(test.GetMAL(number=5))
 
     # test.CandleObsStart(order_currency="BTC", tickTypes="30M")
+    # time.sleep(1)
     # while True:
+    #     data = test.NowCandleStick()
+    #     if isinstance(data, int):
+    #         break
     #     print(test.NowCandleStick())
+    #     test.CandleObsStop()
+ 
     
-    test.TransObsStart(order_currency="BTC")
-    while True:
-        print(test.NowTransaction())
+    # test.TransObsStart(order_currency="BTC")
+    # while True:
+    #     data = test.NowTransaction()
+    #     if isinstance(data, int) == True:
+    #         print("int")
+    #         break
+    #     print(data)
+    #     test.TransObsStop()
 
     # a = datetime.fromtimestamp(time.time())
     
