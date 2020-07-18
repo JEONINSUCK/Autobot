@@ -521,7 +521,7 @@ class Bithumb():
         except Exception as e:
             return e
     
-    def TransObsStart(self, order_currency="BTC"):
+    def TransObsStart(self, order_currency="BTG"):
         """
         Start Transaction observer thread
         """
@@ -541,7 +541,7 @@ class Bithumb():
         except Exception as e:
             return e
 
-    def CandleObsStart(self, tickTypes, order_currency="BTC"):
+    def CandleObsStart(self, tickTypes, order_currency="BTG"):
         """
         Start candlestick observer thread
         """
@@ -561,9 +561,13 @@ class Bithumb():
         except Exception as e:
             return e
 
+class path(Path):
+    def __init__(self):
+        super().__init__()
+
 if __name__ == "__main__":
     start = time.time()
-    with open(Path().KeyPath(), "r") as f:
+    with open(path().KeyPath(), "r") as f:
         buf = f.read().split()
         connect = buf[1]
         secret = buf[3]
@@ -586,14 +590,14 @@ if __name__ == "__main__":
     # print(test.GetVolumes())
     # print(test.GetMAL(number=5))
 
-    # test.CandleObsStart(order_currency="BTC", tickTypes="30M")
-    # time.sleep(1)
-    # while True:
-    #     data = test.NowCandleStick()
-    #     if isinstance(data, int):
-    #         break
-    #     print(test.NowCandleStick())
-    #     test.CandleObsStop()
+    test.CandleObsStart(order_currency="BTC", tickTypes="30M")
+    time.sleep(1)
+    while True:
+        data = test.NowCandleStick()
+        if isinstance(data, int):
+            break
+        print(test.NowCandleStick())
+        test.CandleObsStop()
  
     
     # test.TransObsStart(order_currency="BTC")

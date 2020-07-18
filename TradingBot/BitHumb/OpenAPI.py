@@ -36,7 +36,7 @@ MARKETSELLPATH = "/trade/market_sell"
 CANDLESTICKPATH = "/public/candlestick"
 
 
-class Public():
+class Public:
     def __init__(self, debug=0):
         self.debug = debug
 
@@ -213,7 +213,7 @@ class Public():
         except Exception as e:
             return e
 
-class Path():
+class Path:
     def __init__(self):
         self.top_path = os.getcwd()
         self.default_path = __file__
@@ -247,7 +247,7 @@ class Path():
     def CheckFile(self, path):
         return os.path.exists(path)
 
-class Private():
+class Private:
     def __init__(self, connect, secret, debug=0):
         self.debug = debug
         self.connect = connect
@@ -459,7 +459,7 @@ class Private():
         except Exception as e:
             return e
 
-class LiveInfo():
+class LiveInfo:
     def __init__(self, debug=0):
         threading.Thread.__init__(self)
         self.debug = debug
