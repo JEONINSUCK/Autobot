@@ -23,7 +23,7 @@ class DBHandler():
         try:
             if self.TableCheck(table=table):
                 engine = create_engine("mysql+pymysql://{0}:{1}@{2}/{3}".format(self.user, self.password, self.host, self.db))
-                data.to_sql(table, con=engine, if_exists="append")
+                dataframe.to_sql(table, con=engine, if_exists="append")
                 return 0
             return -1
         except Exception as e:
@@ -46,28 +46,37 @@ class DBHandler():
         except Exception as e:
             return e
 
+    def ServerCheck(self):
+        """
+        Check the server connection
+        """
+        pass
+
 if __name__ == "__main__":
-    try:
-        with open(Path().KeyPath(), "r") as f:
-                buf = f.read().split()
-                connect = buf[1]
-                secret = buf[3]
+    # try:
+    #     with open(Path().KeyPath(), "r") as f:
+    #             buf = f.read().split()
+    #             connect = buf[1]
+    #             secret = buf[3]
 
-        bit = Bithumb(connect, secret)
-        dbhand = DBHandler(host="localhost", user='root', password='root', db='test')
+    #     bit = Bithumb(connect, secret)
+    #     dbhand = DBHandler(host="localhost", user='root', password='root', db='test')
 
-        res = bit.CandleObsStart(order_currency="BTC", tickTypes="30M")
-        while True:
-            data = bit.NowCandleStick()
-            if isinstance(data, int):
-                print("observer is not runing")
-                break
-            print(data)
-            res = dbhand.Hander(data, "candle_test")
-            if res == -1: 
-                print("table is not exist")
-                break
-    finally:
-        bit.CandleObsStop()
-        
+    #     # res = bit.CandleObsStart(order_currency="BTC", tickTypes="30M")
+    #     res = bit.TransObsStart(order_currency="BTC")
+    #     while True:
+    #         data = bit.NowTransaction()
+    #         if isinstance(data, int):
+    #             print("observer is not runing")
+    #             break
+    #         print(data)
+    #         res = dbhand.Hander(data, "trans_test")
+    #         if res == -1: 
+    #             print("table is not exist")
+    #             break
+    # except Exception as e:
+    #     print(e)
+    # finally:
+    #     bit.TransObsStop()
+    pass
     

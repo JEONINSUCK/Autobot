@@ -549,6 +549,7 @@ class Bithumb():
             self.info.candle_run = 1
             th =  threading.Thread(target=self.info.CandleThread, args=(order_currency+"_KRW",tickTypes))
             th.start()
+            return th
         except Exception as e:
             return e
     
