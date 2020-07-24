@@ -1,6 +1,6 @@
 import pymysql
 from sqlalchemy import create_engine
-
+from sqlalchemy import exc
 from OpenAPI import *
 from UserAPI import *
 import pandas
@@ -13,7 +13,7 @@ class DBHandler():
         self.password = password
         self.db = db
 
-    def Hander(self, dataframe, table):
+    def DbSend(self, dataframe, table):
         """
         Store the data into the DB
 
@@ -26,6 +26,31 @@ class DBHandler():
                 dataframe.to_sql(table, con=engine, if_exists="append")
                 return 0
             return -1
+        except exc.OperationalError as e:
+            return e
+        except Exception as e:
+            return e
+
+    def DbGet(self, select, ffrom, options=None):
+        """
+        Get the data into the DB
+
+        * return value: 0 = no data about query
+        """
+        try:
+            con = pymysql.connect(host=self.host, user=self.user, password=self.password, db=self.db)
+            with con.cursor() as cur:
+                if options == None:
+                    query = "SELECT {0} \
+                        FROM {1}".format(select, ffrom)
+                else:
+                    query = "SELECT {0} \
+                            FROM {1}\
+                            {2}".format(select, ffrom, options)
+                if cur.execute(query) == 0:
+                    return -1
+                return cur.fetchall()
+
         except Exception as e:
             return e
 
@@ -46,37 +71,33 @@ class DBHandler():
         except Exception as e:
             return e
 
-    def ServerCheck(self):
-        """
-        Check the server connection
-        """
-        pass
-
 if __name__ == "__main__":
-    # try:
-    #     with open(Path().KeyPath(), "r") as f:
-    #             buf = f.read().split()
-    #             connect = buf[1]
-    #             secret = buf[3]
+    try:
+        with open(Path().KeyPath(), "r") as f:
+                buf = f.read().split()
+                connect = buf[1]
+                secret = buf[3]
 
-    #     bit = Bithumb(connect, secret)
-    #     dbhand = DBHandler(host="localhost", user='root', password='root', db='test')
+        bit = Bithumb(connect, secret)
+        dbhand = DBHandler(host="localhost", user='root', password='root', db='test')
 
-    #     # res = bit.CandleObsStart(order_currency="BTC", tickTypes="30M")
-    #     res = bit.TransObsStart(order_currency="BTC")
-    #     while True:
-    #         data = bit.NowTransaction()
-    #         if isinstance(data, int):
-    #             print("observer is not runing")
-    #             break
-    #         print(data)
-    #         res = dbhand.Hander(data, "trans_test")
-    #         if res == -1: 
-    #             print("table is not exist")
-    #             break
-    # except Exception as e:
-    #     print(e)
+        print(dbhand.DbGet(select="*", ffrom="candle_test", options="where date=20200720 and time<=165000 limit 5"))
+        # # res = bit.CandleObsStart(order_currency="BTC", tickTypes="30M")
+        # res = bit.TransObsStart(order_currency="BTC")
+        # while True:
+        #     data = bit.NowTransaction()
+        #     if isinstance(data, int):
+        #         print("observer is not runing")
+        #         break
+        #     print(data)
+        #     res = dbhand.DbSend(data, "trans_test")
+        #     if res == -1: 
+        #         print("table is not exist")
+        #         break
+        
+    except Exception as e:
+        print(e)
     # finally:
     #     bit.TransObsStop()
-    pass
+    # pass
     
