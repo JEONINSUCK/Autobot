@@ -652,7 +652,7 @@ if __name__ == "__main__":
     #         break
     #     if data == -2: continue
     #     print(data)
-    #     info.CandleThreadStop()
+        # info.CandleThreadStop()
 
     # info = LiveInfo()
     # th1 =  threading.Thread(target=info.TransThread, args=("BTC_KRW",))

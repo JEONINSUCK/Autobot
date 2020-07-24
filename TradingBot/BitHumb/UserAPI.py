@@ -1,5 +1,6 @@
 # from TradingBot.BitHumb.OpenAPI import *
 from OpenAPI import *
+from DBHandler import *
 from datetime import datetime
 from pandas import DataFrame
 from pandas import to_datetime
@@ -555,12 +556,21 @@ class Bithumb():
     
     def CandleObsStop(self):
         """
-        Stope candlestick observer thread
+        Stop candlestick observer thread
         """
         try:
             self.info.CandleThreadStop()
         except Exception as e:
             return e
+
+    # def GetMA(self, ma):
+    #     """
+    #     Return the MA(Moving average) data
+    #     """
+    #     try:
+            
+    #     except Exception as e:
+    #         return e
 
 class path(Path):
     def __init__(self):
@@ -587,18 +597,17 @@ if __name__ == "__main__":
     # print(test.GetTransHis())
     # print(test.MarketBuy(units=0.1))
     # print(test.MarketSell(units=0.6))
-    # print(test.GetCandleStick())
+    # print(test.GetCandleStick(chart_instervals="1m"))
     # print(test.GetVolumes())
     # print(test.GetMAL(number=5))
 
-    test.CandleObsStart(order_currency="BTC", tickTypes="30M")
-    time.sleep(1)
-    while True:
-        data = test.NowCandleStick()
-        if isinstance(data, int):
-            break
-        print(test.NowCandleStick())
-        test.CandleObsStop()
+    # test.CandleObsStart(order_currency="BTC", tickTypes="30M")
+    # while True:
+    #     data = test.NowCandleStick()
+    #     if isinstance(data, int):
+    #         break
+    #     print(test.NowCandleStick())
+        # test.CandleObsStop()
  
     
     # test.TransObsStart(order_currency="BTC")
@@ -610,7 +619,8 @@ if __name__ == "__main__":
     #     print(data)
     #     test.TransObsStop()
 
-    # a = datetime.fromtimestamp(time.time())
+    # a = dateti
+    # e.fromtimestamp(time.time())
     
     # print(time.time() * 1000)
     # b = round(time.time() * 1000)
